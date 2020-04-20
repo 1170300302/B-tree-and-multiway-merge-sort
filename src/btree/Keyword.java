@@ -4,7 +4,7 @@ public class Keyword<T extends Comparable<T>> {
 
   private BTreeNode<T> homeBTreeNode;
   private int insertIndex;
-  private T t;
+  private T value;
 
   public BTreeNode<T> getHomeBTreeNode() {
     return homeBTreeNode;
@@ -14,12 +14,16 @@ public class Keyword<T extends Comparable<T>> {
     return insertIndex;
   }
 
-  public T value() {
-    return t;
+  public void setInsetIndex() {
+    insertIndex = -1;
   }
 
-  public void setValue(T t) {
-    this.t = t;
+  public T getValue() {
+    return value;
+  }
+
+  public void setValue(T value) {
+    this.value = value;
   }
 
   public Keyword(BTreeNode<T> homeBTreeNode, int insertIndex) {

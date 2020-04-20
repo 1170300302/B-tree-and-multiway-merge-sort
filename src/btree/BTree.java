@@ -4,10 +4,15 @@ import java.util.List;
 
 public class BTree<T extends Comparable<T>> {
 
-  private BTreeNode<T> rootBTreeNode = new BTreeNode<T>();
+  private BTreeNode<T> rootBTreeNode = new BTreeNode<>(this);
+  private int rank = 5;
 
-  public BTree() {
+  public void setRootBTreeNode(BTreeNode<T> rootBTreeNode) {
+    this.rootBTreeNode = rootBTreeNode;
+  }
 
+  public int getRank() {
+    return rank;
   }
 
   public BTree(List<T> initList) {
