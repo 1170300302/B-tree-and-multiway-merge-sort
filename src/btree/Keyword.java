@@ -10,6 +10,10 @@ public class Keyword<T extends Comparable<T>> {
     return homeBTreeNode;
   }
 
+  public void setHomeBTreeNode(BTreeNode<T> homeBTreeNode) {
+    this.homeBTreeNode = homeBTreeNode;
+  }
+
   public int getInsertIndex() {
     return insertIndex;
   }
