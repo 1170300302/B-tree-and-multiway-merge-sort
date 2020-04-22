@@ -1,10 +1,10 @@
 package core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import btree.BTree;
 import data.Data;
+import multiway.MultiwayMerge;
 
 public class Controller {
 
@@ -19,8 +19,10 @@ public class Controller {
     for (int i = 0; i < n; i++) {
       testList.add(new Data());
     }
-    BTree<Data> bTree = new BTree<>(testList);
-    bTree.getRank();
+//    BTree<Data> bTree = new BTree<>(testList);
+//    bTree.getRank();
+    MultiwayMerge<Data> multiwayMerge = new MultiwayMerge<>(testList);
+    multiwayMerge.getSortList();
   }
 
 }
