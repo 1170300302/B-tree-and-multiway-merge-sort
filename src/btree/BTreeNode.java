@@ -38,9 +38,9 @@ public class BTreeNode<T extends Comparable<T>> {
     childNodes.add(index, childNode);
   }
 
-//  private BTreeNode<T> getParentNode() {
-//    return parentNode;
-//  }
+  private BTreeNode<T> getParentNode() {
+    return parentNode;
+  }
 
   private void setParentNode(BTreeNode<T> parentNode) {
     this.parentNode = parentNode;
@@ -163,21 +163,6 @@ public class BTreeNode<T extends Comparable<T>> {
       rightBTreeNode.setParentNode(newParntNode);
       // 构造拆分后的中结点，赋值为新的root
       mainBTree.setRootBTreeNode(newParntNode);
-      // 拆分后，子结点的parentNode也要发生改变
-      for (int i = 0; i < leftBTreeNode.getChildNodes().size(); i++) {
-        if (leftBTreeNode.getChildNodes().get(i) != null) {
-          leftBTreeNode.getChildNodes().get(i).setParentNode(leftBTreeNode);
-        }
-      }
-      for (int i = 0; i < rightBTreeNode.getChildNodes().size(); i++) {
-        if (rightBTreeNode.getChildNodes().get(i) != null) {
-          rightBTreeNode.getChildNodes().get(i).setParentNode(rightBTreeNode);
-        }
-      }
-      // 递归拆分
-      if (newParntNode.checkKeywordsNum()) {
-        newParntNode.split();
-      }
     } else {
       leftBTreeNode.setParentNode(parentNode);
       rightBTreeNode.setParentNode(parentNode);
@@ -186,9 +171,21 @@ public class BTreeNode<T extends Comparable<T>> {
       parentNode.getChildNodes().remove(index);
       parentNode.setChildNodes(leftBTreeNode, index);
       parentNode.setChildNodes(rightBTreeNode, index + 1);
-      if (parentNode.checkKeywordsNum()) {
-        parentNode.split();
+    }
+    // 拆分后，子结点的parentNode也要发生改变
+    for (int i = 0; i < leftBTreeNode.getChildNodes().size(); i++) {
+      if (leftBTreeNode.getChildNodes().get(i) != null) {
+        leftBTreeNode.getChildNodes().get(i).setParentNode(leftBTreeNode);
       }
+    }
+    for (int i = 0; i < rightBTreeNode.getChildNodes().size(); i++) {
+      if (rightBTreeNode.getChildNodes().get(i) != null) {
+        rightBTreeNode.getChildNodes().get(i).setParentNode(rightBTreeNode);
+      }
+    }
+    // 递归拆分
+    if (leftBTreeNode.getParentNode().checkKeywordsNum()) {
+      leftBTreeNode.getParentNode().split();
     }
   }
 
@@ -201,7 +198,7 @@ public class BTreeNode<T extends Comparable<T>> {
     } else {
       childNodes.add(null);
     }
-    setParentNode(parentNode);
+//    setParentNode(parentNode);
     // 违背规则，进行拆分
     if (checkKeywordsNum()) {
       split();
@@ -314,14 +311,15 @@ public class BTreeNode<T extends Comparable<T>> {
   }
 
   public void delete(Keyword<T> keyword, boolean isLeafNode) {
+    // 非叶结点的处理
     if (!isLeafNode) {
       BTreeNode<T> adjacentNode = adjacentNode(keyword);
       exchangeKeywords(keyword, adjacentNode);
-      keyword.setHomeBTreeNode(adjacentNode);
       adjacentNode.delete(keyword, true);
       return;
     }
     int keywordLimit = (int) (Math.ceil(mainBTree.getRank() / 2.0) - 1);
+    // 直接删除
     if (keywords.size() > keywordLimit) {
       keywords.remove(keyword);
       keyword.setHomeBTreeNode(null);
@@ -329,16 +327,19 @@ public class BTreeNode<T extends Comparable<T>> {
     } else if (keywords.size() == keywordLimit) {
       BTreeNode<T> leftBroNode = getBroNode(true);
       BTreeNode<T> rightBroNode = getBroNode(false);
+      // 向左兄弟借结点，右兄弟借结点，左右兄弟合并
       if ((leftBroNode != null) && (leftBroNode.getKeywordsSafe().size() > keywordLimit)) {
         borrowKeywords(leftBroNode, keyword, true);
       } else if ((rightBroNode != null) && (rightBroNode.getKeywordsSafe().size() > keywordLimit)) {
         borrowKeywords(rightBroNode, keyword, false);
       } else if (leftBroNode != null) {
         keywords.remove(keyword);
+        keyword.setHomeBTreeNode(null);
         childNodes.remove(0);
         mergeNode(leftBroNode, true);
       } else if (rightBroNode != null) {
         keywords.remove(keyword);
+        keyword.setHomeBTreeNode(null);
         childNodes.remove(0);
         mergeNode(rightBroNode, false);
       }
