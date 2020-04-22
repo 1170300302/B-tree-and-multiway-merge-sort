@@ -7,10 +7,10 @@ public class BTree<T extends Comparable<T>> {
   private BTreeNode<T> rootBTreeNode = new BTreeNode<>(this);
   private int rank = 5;
 
-  public BTreeNode<T> getRootBTreeNode(){
+  public BTreeNode<T> getRootBTreeNode() {
     return rootBTreeNode;
   }
-  
+
   public void setRootBTreeNode(BTreeNode<T> rootBTreeNode) {
     this.rootBTreeNode = rootBTreeNode;
   }
@@ -20,18 +20,18 @@ public class BTree<T extends Comparable<T>> {
   }
 
   public BTree(List<T> initList) {
-    for (T initData : initList) {
-      insert(initData);
-    }
+    insert(initList);
   }
 
-  public void insert(T data) {
-    Keyword<T> queryKeyword = query(data);
-    if (queryKeyword.getInsertIndex() == -1) {
-      System.out.println("This keyword has been inserted");
-    } else {
-      queryKeyword.setValue(data);
-      queryKeyword.getHomeBTreeNode().insert(queryKeyword, queryKeyword.getInsertIndex());
+  public void insert(List<T> insertList) {
+    for (T insertData : insertList) {
+      Keyword<T> queryKeyword = query(insertData);
+      if (queryKeyword.getInsertIndex() == -1) {
+        System.out.println("This keyword has been inserted");
+      } else {
+        queryKeyword.setValue(insertData);
+        queryKeyword.getHomeBTreeNode().insert(queryKeyword, queryKeyword.getInsertIndex());
+      }
     }
   }
 

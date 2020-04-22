@@ -6,7 +6,9 @@ import java.util.List;
 public class BTreeNode<T extends Comparable<T>> {
 
   private List<Keyword<T>> keywords = new ArrayList<>();
+  // 设置keywords的值之后必定设置childNodes的值
   private List<BTreeNode<T>> childNodes = new ArrayList<>();
+  // 同样如此
   private BTreeNode<T> parentNode;
   private BTree<T> mainBTree;
 
@@ -21,6 +23,7 @@ public class BTreeNode<T extends Comparable<T>> {
   private void setKeywords(Keyword<T> keyword, int index) {
     keywords.add(index, keyword);
     keyword.setHomeBTreeNode(this);
+    keyword.setInsetIndex();
   }
 
   public List<BTreeNode<T>> getChildNodesSafe() {
@@ -35,9 +38,9 @@ public class BTreeNode<T extends Comparable<T>> {
     childNodes.add(index, childNode);
   }
 
-  private BTreeNode<T> getParentNode() {
-    return parentNode;
-  }
+//  private BTreeNode<T> getParentNode() {
+//    return parentNode;
+//  }
 
   private void setParentNode(BTreeNode<T> parentNode) {
     this.parentNode = parentNode;
@@ -72,11 +75,13 @@ public class BTreeNode<T extends Comparable<T>> {
       return queryByKeywordsRes;
     }
 
-    // keywords为空的情况
+    // 结点没有该数据，第一种情况，结点为空
     if (keywords.size() == 0) {
       return new Keyword<>(this, 0);
     }
 
+    // 结点没有该数据，第二种情况，结点不为空，递归查询
+    // 递归查询注意叶结点的处理
     if (data.compareTo(keywords.get(0).getValue()) < 0) {
       if (childNodes.get(0) == null) {
         return new Keyword<>(this, 0);
@@ -144,6 +149,7 @@ public class BTreeNode<T extends Comparable<T>> {
       rightChildNodes.add(childNodes.get(i));
     }
 
+    // 构造拆分后的左右结点，只差parentNode的赋值，此时分为两种情况
     BTreeNode<T> leftBTreeNode = new BTreeNode<>(leftKeywords, leftChildNodes, mainBTree);
     BTreeNode<T> rightBTreeNode = new BTreeNode<>(rightKeywords, rightChildNodes, mainBTree);
 
@@ -152,9 +158,12 @@ public class BTreeNode<T extends Comparable<T>> {
       newParntNode.setKeywords(midKeyword, 0);
       newParntNode.setChildNodes(leftBTreeNode, 0);
       newParntNode.setChildNodes(rightBTreeNode, 1);
+      newParntNode.setParentNode(null);
       leftBTreeNode.setParentNode(newParntNode);
       rightBTreeNode.setParentNode(newParntNode);
-      this.mainBTree.setRootBTreeNode(newParntNode);
+      // 构造拆分后的中结点，赋值为新的root
+      mainBTree.setRootBTreeNode(newParntNode);
+      // 拆分后，子结点的parentNode也要发生改变
       for (int i = 0; i < leftBTreeNode.getChildNodes().size(); i++) {
         if (leftBTreeNode.getChildNodes().get(i) != null) {
           leftBTreeNode.getChildNodes().get(i).setParentNode(leftBTreeNode);
@@ -165,6 +174,7 @@ public class BTreeNode<T extends Comparable<T>> {
           rightBTreeNode.getChildNodes().get(i).setParentNode(rightBTreeNode);
         }
       }
+      // 递归拆分
       if (newParntNode.checkKeywordsNum()) {
         newParntNode.split();
       }
@@ -176,21 +186,23 @@ public class BTreeNode<T extends Comparable<T>> {
       parentNode.getChildNodes().remove(index);
       parentNode.setChildNodes(leftBTreeNode, index);
       parentNode.setChildNodes(rightBTreeNode, index + 1);
-      if (leftBTreeNode.getParentNode().checkKeywordsNum()) {
-        leftBTreeNode.getParentNode().split();
+      if (parentNode.checkKeywordsNum()) {
+        parentNode.split();
       }
     }
   }
 
   public void insert(Keyword<T> keyword, int index) {
-    keywords.add(index, keyword);
-    keyword.setInsetIndex();
+    setKeywords(keyword, index);
+    // 插入必定发生在叶结点，故只需判断是否为空即可
     if (childNodes.size() == 0) {
       childNodes.add(null);
       childNodes.add(null);
     } else {
       childNodes.add(null);
     }
+    setParentNode(parentNode);
+    // 违背规则，进行拆分
     if (checkKeywordsNum()) {
       split();
     }
@@ -247,6 +259,9 @@ public class BTreeNode<T extends Comparable<T>> {
       }
       for (int i = 0; i < broNode.getChildNodesSafe().size(); i++) {
         setChildNodes(broNode.getChildNodes().get(i), i);
+        if (broNode.getChildNodes().get(i) != null) {
+          broNode.getChildNodes().get(i).setParentNode(this);
+        }
       }
       parentNode.getChildNodes().remove(index - 1);
     } else {
@@ -257,6 +272,9 @@ public class BTreeNode<T extends Comparable<T>> {
       }
       for (int i = 0; i < broNode.getChildNodesSafe().size(); i++) {
         setChildNodes(broNode.getChildNodes().get(i), childNodes.size());
+        if (broNode.getChildNodes().get(i) != null) {
+          broNode.getChildNodes().get(i).setParentNode(this);
+        }
       }
       parentNode.getChildNodes().remove(index + 1);
       if (parentNode.getKeywordsSafe().size() == 0) {
