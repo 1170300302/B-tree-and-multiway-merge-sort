@@ -21,7 +21,7 @@ public class Controller {
     }
 //    BTree<Data> bTree = new BTree<>(testList);
 //    bTree.getRank();
-    MultiwayMerge<Data> multiwayMerge = new MultiwayMerge<>(testList);
+    MultiwayMerge<Data> multiwayMerge = new MultiwayMerge<>(testList, new Data(1000001));
     multiwayMerge.getSortList();
   }
 

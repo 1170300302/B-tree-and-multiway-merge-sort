@@ -19,6 +19,11 @@ public class Data implements Comparable<Data> {
     B = String.valueOf(minB + Math.random() * (maxB - minB + 1));
   }
 
+  public Data(int num) {
+    A = num;
+    B = String.valueOf(minB + Math.random() * (maxB - minB + 1));
+  }
+
   public int compareTo(Data o) {
     if (A > o.getA()) {
       return 1;
@@ -31,7 +36,7 @@ public class Data implements Comparable<Data> {
 
   @Override
   public String toString() {
-    return new StringBuilder(A + "").toString();
+    return String.valueOf(A);
   }
 
 }
